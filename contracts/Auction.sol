@@ -23,7 +23,7 @@ contract Auction is ERC721Holder {
  
    function startAuction(uint256 price,uint256 tokenId, address collectionAddress)public onlyOwnerOfNFT(collectionAddress,tokenId,msg.sender){
         require(ERC721(collectionAddress).getApproved(tokenId) == address(this),"Not approved");
-        prices[collectionAddress][tokenId] = price;
+        prices[collectionAddress][tokenId] = price * 4 / 5; // 80% of the price
         auctionStarted[collectionAddress][tokenId] = true;
         owners[collectionAddress][tokenId] = address(msg.sender);
         timestamps[collectionAddress][tokenId] = block.timestamp + maxTime;
@@ -33,7 +33,7 @@ contract Auction is ERC721Holder {
     }
 
     function auctionBid(uint256 tokenId, address collectionAddress)public payable{
-        require(prices[collectionAddress][tokenId] < msg.value,"The price is low");
+        require(prices[collectionAddress][tokenId] <  msg.value / 5 * 4,"The price is low");
         require(auctionStarted[collectionAddress][tokenId],"Bid unavailible");
         require(timestamps[collectionAddress][tokenId] >= block.timestamp,"Auction ended");
        
@@ -42,7 +42,7 @@ contract Auction is ERC721Holder {
             require(success,"Failed to send");
         }
 
-        prices[collectionAddress][tokenId] = 90 % msg.value;
+        prices[collectionAddress][tokenId] = msg.value  * 4 / 5; // 80% of the bid
         biders[collectionAddress][tokenId] = address(msg.sender);
 
         emit AuctionBid(collectionAddress,tokenId,msg.sender,msg.value);

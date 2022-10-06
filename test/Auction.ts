@@ -116,24 +116,11 @@ describe("Auction contract", function () {
   });
 
   it('Should end auction', async () => {
-    const auctionEndTnx = await auction.auctionEnd(0 , nftAddress);
-    const receipt = await ethers.provider.getTransactionReceipt(auctionEndTnx.hash);
-    
-    const data = receipt.logs[receipt.logs.length - 1].data;
-    const topics = receipt.logs[receipt.logs.length - 1].topics;
-    const event = auctionEndInterface.decodeEventLog(
-      "AuctionEnd",
-      data,
-      topics
-    );
-    
-    const collectionAddress = event[0]
-    const tokenId = event[1];
-    const winner = event[2];
+    await expect(auction.auctionEnd(0 , nftAddress))
+    .to.changeEtherBalance(accounts[0],BigNumber.from("1600000000000000"));
 
-    expect(collectionAddress).to.equal(nftAddress);
-    expect(tokenId).to.equal(0);
-    expect(winner).to.equal(accounts[1].address);
+    const ownerOfTheSoldNFT = await nftContract.ownerOf(0);
+    expect(ownerOfTheSoldNFT).to.equal(accounts[1].address);
   });
 
   it('Should not bid for unavailible auction', async () => {
