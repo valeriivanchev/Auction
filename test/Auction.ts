@@ -35,9 +35,9 @@ describe("Auction contract", function () {
 
     await nftContract.mintToken();
     await nftContract.connect(accounts[1]).mintToken();
-    await nftContract.mintToken();
-    await nftContract.mintToken();
-    await nftContract.mintToken();
+    for(let i=0;i<4;i++){
+      await nftContract.mintToken();
+    }
 
     auction = await auctionFactory.deploy();
     await auction.deployed();
@@ -160,5 +160,20 @@ describe("Auction contract", function () {
 
     await expect(auctionContractHelper.endAuction(4, nftAddress))
     .to.be.revertedWith('Failed to send');
+  });
+
+  it('Should send the funds to the owner and transfer the ownership to the highest bidder', async () => {
+    await nftContract.approve(auction.address,5);
+    await auction.startAuction(BigNumber.from("100000000000000"),5 , nftAddress);
+    
+    for(let i=2;i<10;i++){
+      await auction.connect(accounts[i]).auctionBid(5,nftAddress,{value:BigNumber.from(i+`00000000000000`)});
+    }
+
+    await expect(auction.auctionEnd(5 , nftAddress))
+    .to.changeEtherBalance(accounts[0],BigNumber.from("720000000000000"));
+
+    const ownerOfTheSoldNFT = await nftContract.ownerOf(5);
+    expect(ownerOfTheSoldNFT).to.equal(accounts[9].address);
   });
 });
