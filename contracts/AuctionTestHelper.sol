@@ -26,7 +26,6 @@ contract AuctionMock is ERC721Holder {
 
     function approve(uint256 tokenId, address collectionAddress)
         external
-        payable
     {
         NFTCollection(collectionAddress).approve(
             address(auctionContract),
@@ -36,14 +35,12 @@ contract AuctionMock is ERC721Holder {
 
     function startAuction(uint256 tokenId, address collectionAddress, uint256 price)
         external
-        payable
     {
        auctionContract.startAuction(price, tokenId, collectionAddress);
     }
 
      function endAuction(uint256 tokenId, address collectionAddress)
         external
-        payable
     {
         auctionContract.auctionEnd(
             tokenId,
